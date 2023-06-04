@@ -1,0 +1,19 @@
+contract CarRental { ... }: This line defines the CarRental contract.
+
+address payable owner;: This line declares a public variable owner of type address payable, which is the address of the contract owner.
+
+uint256 public deposit;: This line declares a public variable deposit of type uint256, which is the security deposit amount required for booking a car.
+
+struct Car { ... }: This line defines a Car struct that stores information about a car, including the car owner's address, license number, rental amount, and availability status.
+
+mapping(string => Car) public cars;: This line declares a public mapping cars that maps a car's license number to its corresponding Car struct.
+
+constructor() { ... }: This is the constructor function that sets the contract owner and the security deposit amount.
+
+function addCar(string memory licenseNumber, uint256 rent) public { ... }: This function allows the contract owner to add a new car to the system by providing its license number and rental amount.
+
+function bookCar(string memory licenseNumber) public payable { ... }: This function allows a renter to book a car by providing its license number and sending the rental amount and security deposit to the contract. If the car is available and the sent amount is sufficient, the car is marked as unavailable and the rental amount is transferred to the car owner.
+
+function endBooking(string memory licenseNumber) public { ... }: This function allows the car owner to end a booking by marking the car as available and returning the security deposit amount to the renter.
+
+function withdraw() public { ... }: This function allows the contract owner to withdraw the balance of the contract.
