@@ -7,6 +7,7 @@ contract CarRentalContract {
 
     struct Car {
         address owner;
+        address renter;
         string licenseNumber;
         uint256 rent; // Rent amount
         bool isAvailable;
@@ -21,21 +22,26 @@ contract CarRentalContract {
 
     function addCar(string memory licenseNumber, uint256 rent) public {
         require(msg.sender == owner, "Only owner can add cars"); // Only owner can add cars
-        cars[licenseNumber] = Car(msg.sender, licenseNumber, rent, true);
+        cars[licenseNumber] = Car(msg.sender, address(0), licenseNumber, rent, true);
     }
 
     function bookCar(string memory licenseNumber) public payable {
         Car storage car = cars[licenseNumber];
         require(car.isAvailable && msg.value >= (car.rent + deposit), "Car is not available or insufficient ether sent"); // Car is available and enough ether is sent
+        car.renter = msg.sender;
         car.isAvailable = false; // Make car unavailable
-        payable(address(uint160(car.owner))).transfer(msg.value); // Transfer ether to owner, will deduct deposit amount
+        payable(car.owner).transfer(car.rent); // Keep deposit in the contract until booking ends
     }
 
     function endBooking(string memory licenseNumber) public {
         Car storage car = cars[licenseNumber];
         require(msg.sender == car.owner, "Only owner can end booking"); // Only owner can end booking
+        address renter = car.renter;
+        require(renter != address(0), "Car is not booked");
+
         car.isAvailable = true; // Make car available again
-        payable(msg.sender).transfer(deposit); // Return deposit amount to renter
+        car.renter = address(0);
+        payable(renter).transfer(deposit); // Return deposit amount to renter
     }
 
     function withdraw() public {
