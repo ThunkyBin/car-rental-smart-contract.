@@ -22,12 +22,16 @@ contract CarRentalContract {
 
     function addCar(string memory licenseNumber, uint256 rent) public {
         require(msg.sender == owner, "Only owner can add cars"); // Only owner can add cars
+        require(bytes(licenseNumber).length > 0, "License number is required");
+        require(rent > 0, "Rent must be greater than zero");
+        require(cars[licenseNumber].owner == address(0), "Car already exists");
+
         cars[licenseNumber] = Car(msg.sender, address(0), licenseNumber, rent, true);
     }
 
     function bookCar(string memory licenseNumber) public payable {
         Car storage car = cars[licenseNumber];
-        require(car.isAvailable && msg.value >= (car.rent + deposit), "Car is not available or insufficient ether sent"); // Car is available and enough ether is sent
+        require(car.isAvailable && msg.value == (car.rent + deposit), "Car is not available or incorrect ether sent"); // Car is available and exact ether is sent
         car.renter = msg.sender;
         car.isAvailable = false; // Make car unavailable
         payable(car.owner).transfer(car.rent); // Keep deposit in the contract until booking ends
